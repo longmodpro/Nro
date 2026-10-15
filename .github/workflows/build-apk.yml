@@ -8,15 +8,30 @@ on:
       - 'Client/Source_Unity/**'
       - '.github/workflows/build-apk.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
+    name: Build Android APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
         with:
           lfs: true
+          fetch-depth: 0
 
-      - uses: game-ci/unity-builder@v4
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Client/Source_Unity/Library
+          key: Unity-Library-Android-${{ hashFiles('Client/Source_Unity/Assets/**', 'Client/Source_Unity/Packages/**', 'Client/Source_Unity/ProjectSettings/**') }}
+          restore-keys: |
+            Unity-Library-Android-
+
+      - name: Build Android APK
+        uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -29,8 +44,9 @@ jobs:
           buildName: NRO-Private
           androidExportType: androidPackage
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
         if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: NRO-Android-APK
           path: build/**/*.apk
