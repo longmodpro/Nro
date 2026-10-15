@@ -27,7 +27,6 @@ jobs:
           targetPlatform: Android
           buildsPath: build
           buildName: NRO-Private
-          androidAppBundle: false
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
