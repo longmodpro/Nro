@@ -1,20 +1,19 @@
-
-name: Request Unity Activation File
+name: Unity License Check
 
 on:
   workflow_dispatch:
 
 jobs:
-  activation:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Request activation file
-        id: activation
-        uses: game-ci/unity-request-activation-file@v2
-
-      - name: Upload activation file
-        uses: actions/upload-artifact@v4
-        with:
-          name: Unity-Activation-File
-          path: ${{ steps.activation.outputs.filePath }}
-          
+      - name: Check license secret exists
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          if [ -z "$UNITY_LICENSE" ]; then
+            echo "UNITY_LICENSE is missing."
+            echo "A valid Unity license is required."
+            exit 1
+          fi
+          echo "UNITY_LICENSE secret exists."
